@@ -1,0 +1,607 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════════
+   LINGUALEARN MULTI-THEME DESIGN SYSTEM
+   6 schemes: dark · light · ocean · sakura · forest · violet
+   ═══════════════════════════════════════════ */
+
+/* ── Design Tokens ── */
+:root {
+  --font-display: 'Outfit', system-ui, sans-serif;
+  --font-body: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --text-caption: 0.6875rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-md: 1.0625rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+  --text-3xl: 2.5rem;
+  --leading-tight: 1.15;
+  --leading-snug: 1.3;
+  --leading-normal: 1.55;
+  --leading-relaxed: 1.7;
+}
+
+/* ═══════════════════════════════════════════
+   THEME: Dark (方案A — Refined Editorial)
+   ═══════════════════════════════════════════ */
+:root, [data-theme="dark"] {
+  /* ink: deep navy */
+  --ink-50:  #f6f7f9;  --ink-50-rgb:  246,247,249;
+  --ink-100: #eceef3;  --ink-100-rgb: 236,238,243;
+  --ink-200: #d5dae3;  --ink-200-rgb: 213,218,227;
+  --ink-300: #b0b9ca;  --ink-300-rgb: 176,185,202;
+  --ink-400: #8593ac;  --ink-400-rgb: 133,147,172;
+  --ink-500: #667593;  --ink-500-rgb: 102,117,147;
+  --ink-600: #515e7a;  --ink-600-rgb: 81,94,122;
+  --ink-700: #424c63;  --ink-700-rgb: 66,76,99;
+  --ink-800: #394154;  --ink-800-rgb: 57,65,84;
+  --ink-900: #181b24;  --ink-900-rgb: 24,27,36;
+  --ink-950: #0e1016;  --ink-950-rgb: 14,16,22;
+
+  /* brand: warm amber */
+  --brand-50:  #fffbeb;  --brand-50-rgb:  255,251,235;
+  --brand-100: #fef3c7;  --brand-100-rgb: 254,243,199;
+  --brand-200: #fde68a;  --brand-200-rgb: 253,230,138;
+  --brand-300: #fcd34d;  --brand-300-rgb: 252,211,77;
+  --brand-400: #fbbf24;  --brand-400-rgb: 251,191,36;
+  --brand-500: #f59e0b;  --brand-500-rgb: 245,158,11;
+  --brand-600: #d97706;  --brand-600-rgb: 217,119,6;
+  --brand-700: #b45309;  --brand-700-rgb: 180,83,9;
+  --brand-800: #92400e;  --brand-800-rgb: 146,64,14;
+  --brand-900: #78350f;  --brand-900-rgb: 120,53,15;
+
+  /* sage: green */
+  --sage-50:  #f0fdf4;  --sage-50-rgb:  240,253,244;
+  --sage-100: #dcfce7;  --sage-100-rgb: 220,252,231;
+  --sage-200: #bbf7d0;  --sage-200-rgb: 187,247,208;
+  --sage-300: #86efac;  --sage-300-rgb: 134,239,172;
+  --sage-400: #4ade80;  --sage-400-rgb: 74,222,128;
+  --sage-500: #22c55e;  --sage-500-rgb: 34,197,94;
+  --sage-600: #16a34a;  --sage-600-rgb: 22,163,74;
+  --sage-700: #15803d;  --sage-700-rgb: 21,128,61;
+  --sage-800: #166534;  --sage-800-rgb: 22,101,52;
+  --sage-900: #14532d;  --sage-900-rgb: 20,83,45;
+
+  --selection-bg: rgba(245,158,11,0.25);
+  --selection-fg: #fef3c7;
+  --focus-ring: #f59e0b;
+  --scrollbar-thumb: rgba(236,238,243,0.12);
+  --scrollbar-thumb-hover: rgba(236,238,243,0.2);
+}
+
+/* ═══════════════════════════════════════════
+   THEME: Light (方案D — Zen Nature)
+   ═══════════════════════════════════════════ */
+[data-theme="light"] {
+  /* ink: warm stone */
+  --ink-50:  #fcfaf7;  --ink-50-rgb:  252,250,247;
+  --ink-100: #2d4a4a;  --ink-100-rgb: 45,74,74;
+  --ink-200: #3d5e5e;  --ink-200-rgb: 61,94,94;
+  --ink-300: #5a7272;  --ink-300-rgb: 90,114,114;
+  --ink-400: #96a8a0;  --ink-400-rgb: 150,168,160;
+  --ink-500: #7d8f8a;  --ink-500-rgb: 125,143,138;
+  --ink-600: #c4c0b8;  --ink-600-rgb: 196,192,184;
+  --ink-700: #e0dcd4;  --ink-700-rgb: 224,220,212;
+  --ink-800: #f0ece4;  --ink-800-rgb: 240,236,228;
+  --ink-900: #f5f0e8;  --ink-900-rgb: 245,240,232;
+  --ink-950: #f5f2eb;  --ink-950-rgb: 245,242,235;
+
+  /* brand: deep teal */
+  --brand-50:  #f0faf9;  --brand-50-rgb:  240,250,249;
+  --brand-100: #d5f0ef;  --brand-100-rgb: 213,240,239;
+  --brand-200: #a6e2e0;  --brand-200-rgb: 166,226,224;
+  --brand-300: #6fcecb;  --brand-300-rgb: 111,206,203;
+  --brand-400: #3dbab5;  --brand-400-rgb: 61,186,181;
+  --brand-500: #1a6566;  --brand-500-rgb: 26,101,102;
+  --brand-600: #165455;  --brand-600-rgb: 22,84,85;
+  --brand-700: #124444;  --brand-700-rgb: 18,68,68;
+  --brand-800: #0e3435;  --brand-800-rgb: 14,52,53;
+  --brand-900: #0a2526;  --brand-900-rgb: 10,37,38;
+
+  /* sage: warm sand */
+  --sage-50:  #fdf8f3;  --sage-50-rgb:  253,248,243;
+  --sage-100: #faeedb;  --sage-100-rgb: 250,238,219;
+  --sage-200: #f5deb7;  --sage-200-rgb: 245,222,183;
+  --sage-300: #ecc88c;  --sage-300-rgb: 236,200,140;
+  --sage-400: #e0b165;  --sage-400-rgb: 224,177,101;
+  --sage-500: #d4a574;  --sage-500-rgb: 212,165,116;
+  --sage-600: #b88958;  --sage-600-rgb: 184,137,88;
+  --sage-700: #9c6d40;  --sage-700-rgb: 156,109,64;
+  --sage-800: #7a5430;  --sage-800-rgb: 122,84,48;
+  --sage-900: #5a3d22;  --sage-900-rgb: 90,61,34;
+
+  --selection-bg: rgba(26,101,102,0.18);
+  --selection-fg: #1a6566;
+  --focus-ring: #1a6566;
+  --scrollbar-thumb: rgba(45,74,74,0.1);
+  --scrollbar-thumb-hover: rgba(45,74,74,0.18);
+}
+
+/* ═══════════════════════════════════════════
+   THEME: Ocean (方案B — Deep Ocean)
+   冷静专注 · 深海钴蓝
+   ═══════════════════════════════════════════ */
+[data-theme="ocean"] {
+  --ink-50:  #f4f8fb;  --ink-50-rgb:  244,248,251;
+  --ink-100: #e4eef7;  --ink-100-rgb: 228,238,247;
+  --ink-200: #c5daea;  --ink-200-rgb: 197,218,234;
+  --ink-300: #93b8d8;  --ink-300-rgb: 147,184,216;
+  --ink-400: #628fc0;  --ink-400-rgb: 98,143,192;
+  --ink-500: #4570a8;  --ink-500-rgb: 69,112,168;
+  --ink-600: #34588c;  --ink-600-rgb: 52,88,140;
+  --ink-700: #2a4772;  --ink-700-rgb: 42,71,114;
+  --ink-800: #1b2e4f;  --ink-800-rgb: 27,46,79;
+  --ink-900: #0d1a32;  --ink-900-rgb: 13,26,50;
+  --ink-950: #070e1f;  --ink-950-rgb: 7,14,31;
+
+  --brand-50:  #eefbff;  --brand-50-rgb:  238,251,255;
+  --brand-100: #d6f4ff;  --brand-100-rgb: 214,244,255;
+  --brand-200: #b0e8ff;  --brand-200-rgb: 176,232,255;
+  --brand-300: #70d5ff;  --brand-300-rgb: 112,213,255;
+  --brand-400: #2db8f0;  --brand-400-rgb: 45,184,240;
+  --brand-500: #0d9de0;  --brand-500-rgb: 13,157,224;
+  --brand-600: #0a7db8;  --brand-600-rgb: 10,125,184;
+  --brand-700: #0c6394;  --brand-700-rgb: 12,99,148;
+  --brand-800: #105278;  --brand-800-rgb: 16,82,120;
+  --brand-900: #114564;  --brand-900-rgb: 17,69,100;
+
+  --sage-50:  #f0fdfa;  --sage-50-rgb:  240,253,250;
+  --sage-100: #ccfbf1;  --sage-100-rgb: 204,251,241;
+  --sage-200: #99f6e4;  --sage-200-rgb: 153,246,228;
+  --sage-300: #5eead4;  --sage-300-rgb: 94,234,212;
+  --sage-400: #2dd4bf;  --sage-400-rgb: 45,212,191;
+  --sage-500: #14b8a6;  --sage-500-rgb: 20,184,166;
+  --sage-600: #0d9488;  --sage-600-rgb: 13,148,136;
+  --sage-700: #0f766e;  --sage-700-rgb: 15,118,110;
+  --sage-800: #115e56;  --sage-800-rgb: 17,94,86;
+  --sage-900: #134e48;  --sage-900-rgb: 19,78,72;
+
+  --selection-bg: rgba(13,157,224,0.25);
+  --selection-fg: #d6f4ff;
+  --focus-ring: #0d9de0;
+  --scrollbar-thumb: rgba(228,238,247,0.12);
+  --scrollbar-thumb-hover: rgba(228,238,247,0.2);
+}
+
+/* ═══════════════════════════════════════════
+   THEME: Sakura (方案C — Sakura Blush)
+   温暖柔和 · 樱花柔粉
+   ═══════════════════════════════════════════ */
+[data-theme="sakura"] {
+  --ink-50:  #fff5f6;  --ink-50-rgb:  255,245,246;
+  --ink-100: #ffe4e8;  --ink-100-rgb: 255,228,232;
+  --ink-200: #fcccd5;  --ink-200-rgb: 252,204,213;
+  --ink-300: #f9a3b5;  --ink-300-rgb: 249,163,181;
+  --ink-400: #f57492;  --ink-400-rgb: 245,116,146;
+  --ink-500: #e85d7a;  --ink-500-rgb: 232,93,122;
+  --ink-600: #d43f61;  --ink-600-rgb: 212,63,97;
+  --ink-700: #b12e4d;  --ink-700-rgb: 177,46,77;
+  --ink-800: #2d1520;  --ink-800-rgb: 45,21,32;
+  --ink-900: #1f0e16;  --ink-900-rgb: 31,14,22;
+  --ink-950: #14080e;  --ink-950-rgb: 20,8,14;
+
+  --brand-50:  #fff1f3;  --brand-50-rgb:  255,241,243;
+  --brand-100: #ffe3e8;  --brand-100-rgb: 255,227,232;
+  --brand-200: #ffcbd6;  --brand-200-rgb: 255,203,214;
+  --brand-300: #ffa3b6;  --brand-300-rgb: 255,163,182;
+  --brand-400: #fd6f8e;  --brand-400-rgb: 253,111,142;
+  --brand-500: #f43f5e;  --brand-500-rgb: 244,63,94;
+  --brand-600: #e11d48;  --brand-600-rgb: 225,29,72;
+  --brand-700: #be123c;  --brand-700-rgb: 190,18,60;
+  --brand-800: #9f1239;  --brand-800-rgb: 159,18,57;
+  --brand-900: #881337;  --brand-900-rgb: 136,19,55;
+
+  --sage-50:  #fff7ed;  --sage-50-rgb:  255,247,237;
+  --sage-100: #ffedd5;  --sage-100-rgb: 255,237,213;
+  --sage-200: #fed7aa;  --sage-200-rgb: 254,215,170;
+  --sage-300: #fdba74;  --sage-300-rgb: 253,186,116;
+  --sage-400: #fb923c;  --sage-400-rgb: 251,146,60;
+  --sage-500: #f97316;  --sage-500-rgb: 249,115,22;
+  --sage-600: #ea580c;  --sage-600-rgb: 234,88,12;
+  --sage-700: #c2410c;  --sage-700-rgb: 194,65,12;
+  --sage-800: #9a3412;  --sage-800-rgb: 154,52,18;
+  --sage-900: #7c2d12;  --sage-900-rgb: 124,45,18;
+
+  --selection-bg: rgba(244,63,94,0.25);
+  --selection-fg: #ffe3e8;
+  --focus-ring: #f43f5e;
+  --scrollbar-thumb: rgba(255,228,232,0.12);
+  --scrollbar-thumb-hover: rgba(255,228,232,0.2);
+}
+
+/* ═══════════════════════════════════════════
+   THEME: Forest (方案E — Forest Dawn)
+   自然清新 · 森林晨光
+   ═══════════════════════════════════════════ */
+[data-theme="forest"] {
+  --ink-50:  #f7faf5;  --ink-50-rgb:  247,250,245;
+  --ink-100: #e8f2e0;  --ink-100-rgb: 232,242,224;
+  --ink-200: #cfe3bf;  --ink-200-rgb: 207,227,191;
+  --ink-300: #a8cc8f;  --ink-300-rgb: 168,204,143;
+  --ink-400: #7daf60;  --ink-400-rgb: 125,175,96;
+  --ink-500: #5f9345;  --ink-500-rgb: 95,147,69;
+  --ink-600: #4a7735;  --ink-600-rgb: 74,119,53;
+  --ink-700: #395f2b;  --ink-700-rgb: 57,95,43;
+  --ink-800: #182315;  --ink-800-rgb: 24,35,21;
+  --ink-900: #111a0e;  --ink-900-rgb: 17,26,14;
+  --ink-950: #0a1008;  --ink-950-rgb: 10,16,8;
+
+  --brand-50:  #fffbeb;  --brand-50-rgb:  255,251,235;
+  --brand-100: #fef3c7;  --brand-100-rgb: 254,243,199;
+  --brand-200: #fde68a;  --brand-200-rgb: 253,230,138;
+  --brand-300: #fcd34d;  --brand-300-rgb: 252,211,77;
+  --brand-400: #fbbf24;  --brand-400-rgb: 251,191,36;
+  --brand-500: #f59e0b;  --brand-500-rgb: 245,158,11;
+  --brand-600: #d97706;  --brand-600-rgb: 217,119,6;
+  --brand-700: #b45309;  --brand-700-rgb: 180,83,9;
+  --brand-800: #92400e;  --brand-800-rgb: 146,64,14;
+  --brand-900: #78350f;  --brand-900-rgb: 120,53,15;
+
+  --sage-50:  #f0fdf4;  --sage-50-rgb:  240,253,244;
+  --sage-100: #dcfce7;  --sage-100-rgb: 220,252,231;
+  --sage-200: #bbf7d0;  --sage-200-rgb: 187,247,208;
+  --sage-300: #86efac;  --sage-300-rgb: 134,239,172;
+  --sage-400: #4ade80;  --sage-400-rgb: 74,222,128;
+  --sage-500: #22c55e;  --sage-500-rgb: 34,197,94;
+  --sage-600: #16a34a;  --sage-600-rgb: 22,163,74;
+  --sage-700: #15803d;  --sage-700-rgb: 21,128,61;
+  --sage-800: #166534;  --sage-800-rgb: 22,101,52;
+  --sage-900: #14532d;  --sage-900-rgb: 20,83,45;
+
+  --selection-bg: rgba(245,158,11,0.25);
+  --selection-fg: #fef3c7;
+  --focus-ring: #f59e0b;
+  --scrollbar-thumb: rgba(232,242,224,0.12);
+  --scrollbar-thumb-hover: rgba(232,242,224,0.2);
+}
+
+/* ═══════════════════════════════════════════
+   THEME: Violet (方案F — Midnight Violet)
+   创意优雅 · 午夜紫调
+   ═══════════════════════════════════════════ */
+[data-theme="violet"] {
+  --ink-50:  #fbf8ff;  --ink-50-rgb:  251,248,255;
+  --ink-100: #f3edff;  --ink-100-rgb: 243,237,255;
+  --ink-200: #e4d6fe;  --ink-200-rgb: 228,214,254;
+  --ink-300: #c8affd;  --ink-300-rgb: 200,175,253;
+  --ink-400: #a47ef6;  --ink-400-rgb: 164,126,246;
+  --ink-500: #845aed;  --ink-500-rgb: 132,90,237;
+  --ink-600: #6d45d1;  --ink-600-rgb: 109,69,209;
+  --ink-700: #5536a8;  --ink-700-rgb: 85,54,168;
+  --ink-800: #1c1535;  --ink-800-rgb: 28,21,53;
+  --ink-900: #130e25;  --ink-900-rgb: 19,14,37;
+  --ink-950: #0b0818;  --ink-950-rgb: 11,8,24;
+
+  --brand-50:  #faf5ff;  --brand-50-rgb:  250,245,255;
+  --brand-100: #f3e8ff;  --brand-100-rgb: 243,232,255;
+  --brand-200: #e9d5ff;  --brand-200-rgb: 233,213,255;
+  --brand-300: #d8b4fe;  --brand-300-rgb: 216,180,254;
+  --brand-400: #c084fc;  --brand-400-rgb: 192,132,252;
+  --brand-500: #a855f7;  --brand-500-rgb: 168,85,247;
+  --brand-600: #9333ea;  --brand-600-rgb: 147,51,234;
+  --brand-700: #7e22ce;  --brand-700-rgb: 126,34,206;
+  --brand-800: #6b21a8;  --brand-800-rgb: 107,33,168;
+  --brand-900: #581c87;  --brand-900-rgb: 88,28,135;
+
+  --sage-50:  #f5f3ff;  --sage-50-rgb:  245,243,255;
+  --sage-100: #ede9fe;  --sage-100-rgb: 237,233,254;
+  --sage-200: #ddd6fe;  --sage-200-rgb: 221,214,254;
+  --sage-300: #c4b5fd;  --sage-300-rgb: 196,181,253;
+  --sage-400: #a78bfa;  --sage-400-rgb: 167,139,250;
+  --sage-500: #8b5cf6;  --sage-500-rgb: 139,92,246;
+  --sage-600: #7c3aed;  --sage-600-rgb: 124,58,237;
+  --sage-700: #6d28d9;  --sage-700-rgb: 109,40,217;
+  --sage-800: #5b21b6;  --sage-800-rgb: 91,33,182;
+  --sage-900: #4c1d95;  --sage-900-rgb: 76,29,149;
+
+  --selection-bg: rgba(168,85,247,0.25);
+  --selection-fg: #f3e8ff;
+  --focus-ring: #a855f7;
+  --scrollbar-thumb: rgba(243,237,255,0.12);
+  --scrollbar-thumb-hover: rgba(243,237,255,0.2);
+}
+
+/* ── Base Reset ── */
+* { -webkit-tap-highlight-color: transparent; }
+
+html {
+  height: 100%;
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-height: 100dvh;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  background-color: var(--ink-950);
+  color: var(--ink-100);
+}
+
+::selection {
+  background-color: var(--selection-bg);
+  color: var(--selection-fg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ── Bottom safe area for iPhone ── */
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+/* ═══════════════════════════════════════════
+   COMPONENT CLASSES
+   ═══════════════════════════════════════════ */
+
+/* ── Page Container ── */
+.page {
+  @apply min-h-[100dvh] pb-24 px-4 pt-5;
+}
+
+/* ── Card (v2 — elevated, warm-tinted) ── */
+.card {
+  @apply bg-ink-800 border border-ink-700/60 rounded-2xl p-4
+         backdrop-blur-sm shadow-card;
+}
+
+.card-interactive {
+  @apply card cursor-pointer transition-all duration-200 ease-out-expo
+         hover:bg-ink-700 hover:border-brand-500/20 hover:shadow-card-hover
+         active:scale-[0.985];
+}
+
+/* ── Card variants ── */
+.card-glow {
+  @apply card border-brand-500/15 shadow-inner-glow;
+  background: linear-gradient(135deg, var(--brand-500) 0%, var(--ink-800) 70%);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--brand-500) 6%, transparent) 0%, color-mix(in srgb, var(--ink-800) 80%, transparent) 70%);
+}
+
+.card-sage {
+  @apply card border-sage-500/15;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--sage-500) 5%, transparent) 0%, color-mix(in srgb, var(--ink-800) 80%, transparent) 70%);
+}
+
+/* ── Buttons (v2) ── */
+.btn {
+  @apply inline-flex items-center justify-center gap-2 font-medium
+         rounded-xl transition-all duration-200 ease-out-expo
+         disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none
+         active:scale-[0.97];
+  font-family: var(--font-display);
+  letter-spacing: 0.01em;
+}
+
+.btn-primary {
+  @apply btn bg-brand-500 text-ink-950 font-semibold
+         hover:bg-brand-400 hover:shadow-lg hover:shadow-brand-500/20
+         active:bg-brand-600;
+}
+
+.btn-secondary {
+  @apply btn bg-ink-800 text-ink-200 border border-ink-700
+         hover:bg-ink-700 hover:border-brand-500/30 hover:text-white;
+}
+
+.btn-ghost {
+  @apply btn text-ink-300 hover:bg-ink-800/60 hover:text-white;
+}
+
+.btn-ghost-brand {
+  @apply btn text-brand-400 hover:bg-brand-500/10 hover:text-brand-300;
+}
+
+.btn-danger {
+  @apply btn bg-red-600/15 text-red-400 border border-red-500/20
+         hover:bg-red-600/25 hover:text-red-300;
+}
+
+.btn-success {
+  @apply btn bg-sage-600/15 text-sage-400 border border-sage-500/20
+         hover:bg-sage-600/25 hover:text-sage-300;
+}
+
+/* Button sizes */
+.btn-sm  { @apply px-3 py-1.5 text-xs rounded-lg gap-1.5; }
+.btn-md  { @apply px-4 py-2.5 text-sm; }
+.btn-lg  { @apply px-6 py-3.5 text-base rounded-2xl; }
+.btn-xl  { @apply px-8 py-4 text-lg rounded-2xl; }
+
+/* Button icon-only */
+.btn-icon {
+  @apply btn p-2 rounded-xl;
+}
+.btn-icon-sm { @apply p-1.5 rounded-lg; }
+
+/* ── Input Fields (v2) ── */
+.input-field {
+  @apply w-full bg-ink-800 border border-ink-700/60 rounded-xl px-4 py-3
+         text-ink-100 placeholder-ink-400
+         focus:outline-none focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/20
+         transition-all duration-200;
+  font-family: var(--font-body);
+}
+
+.input-field-lg {
+  @apply input-field px-5 py-4 text-base;
+}
+
+.input-field-sm {
+  @apply input-field px-3 py-2 text-sm rounded-lg;
+}
+
+/* ── Badges & Tags (v2) ── */
+.badge {
+  @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium;
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+}
+
+.badge-brand   { @apply bg-brand-500/10 text-brand-400 border border-brand-500/20; }
+.badge-sage    { @apply bg-sage-500/10 text-sage-400 border border-sage-500/20; }
+.badge-blue    { @apply bg-blue-500/10 text-blue-400 border border-blue-500/20; }
+.badge-purple  { @apply bg-purple-500/10 text-purple-400 border border-purple-500/20; }
+.badge-red     { @apply bg-red-500/10 text-red-400 border border-red-500/20; }
+.badge-amber   { @apply bg-amber-500/10 text-amber-400 border border-amber-500/20; }
+
+/* Legacy badge compat */
+.badge-primary { @apply badge-brand; }
+.badge-success { @apply badge-sage; }
+.badge-warning { @apply badge-amber; }
+
+/* ── Message Bubbles (v2) ── */
+.msg-bot {
+  @apply bg-ink-800 border border-ink-700/50 rounded-2xl rounded-tl-md
+         px-4 py-3 max-w-[82%] self-start;
+}
+
+.msg-user {
+  @apply bg-brand-600 rounded-2xl rounded-tr-md
+         px-4 py-3 max-w-[82%] self-end text-white;
+}
+
+/* ── Bottom Navigation ── */
+.nav-active   { @apply text-brand-400; }
+.nav-inactive { @apply text-ink-400; }
+
+/* ── Shimmer loading effect ── */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--ink-100) 4%, transparent) 25%,
+    color-mix(in srgb, var(--ink-100) 8%, transparent) 50%,
+    color-mix(in srgb, var(--ink-100) 4%, transparent) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* ── Skeleton ── */
+.skeleton {
+  @apply shimmer rounded-lg;
+}
+
+/* ── Divider ── */
+.divider {
+  @apply border-t border-ink-700/50;
+}
+
+.divider-soft {
+  @apply border-t border-ink-700/30;
+}
+
+/* ── Glass surface ── */
+.glass {
+  @apply bg-ink-900/80 backdrop-blur-xl border border-ink-700/40;
+}
+
+/* ── Segment Control ── */
+.segment {
+  @apply flex rounded-xl bg-ink-800/80 p-0.5 border border-ink-700/50;
+}
+
+.segment-item {
+  @apply flex-1 flex items-center justify-center gap-1.5
+         px-3 py-1.5 rounded-lg text-xs font-medium
+         transition-all duration-200 ease-out-expo;
+}
+
+.segment-item-active {
+  @apply bg-ink-700 text-white shadow-subtle;
+}
+
+.segment-item-inactive {
+  @apply text-ink-400 hover:text-ink-200;
+}
+
+/* ── Progress Bar ── */
+.progress-track {
+  @apply w-full bg-ink-700/50 rounded-full overflow-hidden;
+}
+
+.progress-fill {
+  @apply h-full rounded-full transition-all duration-500 ease-out-expo;
+}
+
+.progress-fill-brand { @apply bg-brand-500; }
+.progress-fill-sage  { @apply bg-sage-500; }
+
+/* ── Tooltip ── */
+.tooltip {
+  @apply absolute z-50 px-2.5 py-1.5 text-xs font-medium
+         bg-ink-800 border border-ink-600 rounded-lg shadow-elevated
+         text-ink-100 whitespace-nowrap;
+}
+
+/* ═══════════════════════════════════════════
+   ANIMATION KEYFRAMES
+   ═══════════════════════════════════════════ */
+
+@keyframes wave {
+  0%, 100% { transform: scaleY(0.4); }
+  50%      { transform: scaleY(1.6); }
+}
+
+.animate-wave {
+  animation: wave 0.6s ease-in-out infinite;
+  transform-origin: bottom;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Stagger children */
+.stagger > * {
+  opacity: 0;
+  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.stagger > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger > *:nth-child(4) { animation-delay: 0.2s; }
+.stagger > *:nth-child(5) { animation-delay: 0.25s; }
+.stagger > *:nth-child(6) { animation-delay: 0.3s; }
+.stagger > *:nth-child(7) { animation-delay: 0.35s; }
+.stagger > *:nth-child(8) { animation-delay: 0.4s; }
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

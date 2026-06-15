@@ -1,0 +1,49 @@
+name: Deploy to Tencent Cloud
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: lingualearn_test
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - run: pip install -e ".[dev]"
+      - run: pip install ruff && ruff check app/ --no-fix || true
+      - run: pytest tests/ -v --timeout=30 -x
+        env:
+          DATABASE_URL: postgresql+asyncpg://test:test@localhost:5432/lingualearn_test
+          REDIS_URL: redis://localhost:6379/0
+          SECRET_KEY: test-secret-key-ci
+  deploy:
+    needs: test
+    if: github.ref == "refs/heads/main"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+            cd /opt/lingualearn
+            git fetch origin main
+            git reset --hard origin/main
+            docker compose build app
+            docker compose up -d --no-deps app
+            docker image prune -f

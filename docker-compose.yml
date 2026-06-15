@@ -1,0 +1,31 @@
+version: "3.9"
+
+networks:
+  1panel-net:
+    external: true
+    name: 1panel-network
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lingualearn-app
+    ports:
+      - "127.0.0.1:8000:8000"
+    networks:
+      - 1panel-net
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      SECRET_KEY: ${SECRET_KEY}
+      CORS_ORIGINS: '["*"]'
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
+      DEEPSEEK_BASE_URL: ${DEEPSEEK_BASE_URL:-https://api.deepseek.com/v1}
+      USE_QWEN: ${USE_QWEN:-true}
+      QWEN_API_KEY: ${QWEN_API_KEY}
+      QWEN_MODEL: ${QWEN_MODEL:-qwen-plus}
+    restart: unless-stopped
+    volumes:
+      - /opt/lingualearn/.env:/app/.env:ro
+

@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lingualearn-backend"
+version = "1.0.0"
+description = "LinguaLearn API Backend — AI-powered English learning for Chinese students"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "LinguaLearn Team"}
+]
+keywords = ["english-learning", "ai", "fastapi", "education"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Education",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Framework :: FastAPI",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

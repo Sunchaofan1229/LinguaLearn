@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LinguaLearn Admin Panel</title>
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--border:#334155;--text:#e2e8f0;--muted:#64748b;--blue:#38bdf8;--green:#22c55e;--red:#ef4444;--amber:#f59e0b}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.sidebar{position:fixed;left:0;top:0;width:220px;height:100vh;background:var(--card);border-right:1px solid var(--border);padding:20px 0;overflow-y:auto;z-index:20}
+.sidebar h2{font-size:16px;color:var(--blue);padding:0 20px;margin-bottom:24px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--muted);cursor:pointer;font-size:13px;transition:.15s;border-left:2px solid transparent}
+.nav-item:hover{background:#ffffff08;color:var(--text)}
+.nav-item.active{background:#1e40af22;color:var(--blue);border-left-color:var(--blue)}
+.main{margin-left:220px;padding:24px}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.header h1{font-size:22px}
+.status-badge{padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600}
+.status-ok{background:#166534;color:#86efac}
+.status-err{background:#991b1b;color:#fca5a5}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px}
+.stat-card .label{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+.stat-card .value{font-size:28px;font-weight:700;margin:4px 0}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px}
+.panel-header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border);background:#ffffff03}
+.panel-header h3{font-size:14px;font-weight:600}
+.panel-body{padding:16px;max-height:400px;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:8px 10px;background:#ffffff04;color:var(--muted);font-weight:500;border-bottom:1px solid var(--border);position:sticky;top:0}
+td{padding:6px 10px;border-bottom:1px solid #ffffff06;white-space:nowrap;max-width:300px;overflow:hidden;text-overflow:ellipsis}
+tr:hover td{background:#ffffff04}
+.btn{padding:6px 14px;border-radius:6px;border:none;font-size:12px;font-weight:500;cursor:pointer;transition:.15s}
+.btn-sm{padding:3px 10px;font-size:11px}
+.btn-primary{background:#2563eb;color:#fff}.btn-primary:hover{background:#1d4ed8}
+.btn-success{background:#16a34a;color:#fff}.btn-success:hover{background:#15803d}
+.btn-danger{background:#dc2626;color:#fff}.btn-danger:hover{background:#b91c1c}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}.btn-outline:hover{background:var(--card)}
+.btn-warn{background:#d97706;color:#fff}.btn-warn:hover{background:#b45309}
+.status-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:6px}
+.dot-green{background:var(--green)}.dot-red{background:var(--red)}.dot-amber{background:var(--amber)}
+.sql-box{width:100%;padding:10px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-family:monospace;font-size:13px;min-height:60px;resize:vertical;margin-bottom:8px}
+.log-box{background:#000;color:#0f0;font-family:monospace;font-size:11px;padding:10px;border-radius:6px;max-height:300px;overflow-y:auto;white-space:pre-wrap}
+.empty{text-align:center;color:var(--muted);padding:40px}
+.loading{text-align:center;color:var(--muted);padding:20px}
+.toast{position:fixed;bottom:20px;right:20px;padding:10px 20px;border-radius:8px;font-size:13px;z-index:100;display:none;max-width:400px}
+.toast-success{background:#166534;color:#86efac}
+.toast-error{background:#991b1b;color:#fca5a5}
+.modal-overlay{position:fixed;inset:0;background:#00000088;z-index:50;display:flex;align-items:center;justify-content:center}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;max-width:600px;width:90%;max-height:80vh;overflow-y:auto}
+.modal h3{margin-bottom:16px}
+tr.clickable{cursor:pointer}tr.clickable:hover td{color:var(--blue)}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <h2>⚙️ LinguaLearn<br><span style="font-size:10px;color:var(--muted);font-weight:400">Admin Panel v1.0</span></h2>
+  <div class="nav-item active" data-page="dashboard">📊 仪表盘</div>
+  <div class="nav-item" data-page="database">🗄️ 数据库管理</div>
+  <div class="nav-item" data-page="containers">🐳 服务管理</div>
+  <div class="nav-item" data-page="health">❤️ 系统健康</div>
+  <div class="nav-item" data-page="test">🧪 测试模块</div>
+</div>
+
+<div class="main" id="mainContent"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'http://42.193.154.117/api/v1';
+const ADMIN = API + '/admin';
+let token = localStorage.getItem('ll_admin_token') || '';
+
+function toast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast toast-'+type;
+  t.style.display='block';setTimeout(()=>t.style.display='none',2500);
+}
+async function fetchJSON(url,opts={}){
+  if(token) opts.headers={...opts.headers,'Authorization':'Bearer '+token};
+  const r=await fetch(url,opts);
+  if(r.status===401){token='';localStorage.removeItem('ll_admin_token');renderPage('dashboard');throw new Error('Unauthorized');}
+  return r.json();
+}
+
+// ── Navigation ──
+document.querySelectorAll('.nav-item').forEach(n=>n.onclick=()=>{
+  document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+  n.classList.add('active');
+  renderPage(n.dataset.page);
+});
+
+function renderPage(page){
+  if(!token&&page!=='login'){renderLogin();return;}
+  const fns={dashboard:renderDashboard,database:renderDatabase,containers:renderContainers,health:renderHealth,test:renderTest};
+  (fns[page]||renderDashboard)();
+}
+
+// ── Login ──
+function renderLogin(){
+  document.getElementById('mainContent').innerHTML=`
+    <div style="max-width:360px;margin:80px auto">
+      <div class="panel">
+        <div class="panel-header"><h3>🔐 管理员登录</h3></div>
+        <div class="panel-body">
+          <input id="loginEmail" placeholder="邮箱" style="width:100%;padding:10px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);margin-bottom:10px;font-size:14px">
+          <input id="loginPwd" placeholder="密码" type="password" style="width:100%;padding:10px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);margin-bottom:10px;font-size:14px">
+          <button class="btn btn-primary" style="width:100%;padding:10px" onclick="doLogin()">登录</button>
+        </div>
+      </div>
+    </div>`;
+}
+async function doLogin(){
+  const email=document.getElementById('loginEmail').value;
+  const password=document.getElementById('loginPwd').value;
+  try{const d=await fetchJSON(API+'/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
+    if(d.access_token){token=d.access_token;localStorage.setItem('ll_admin_token',token);renderPage('dashboard');toast('登录成功');}
+    else if(d.data?.access_token){token=d.data.access_token;localStorage.setItem('ll_admin_token',token);renderPage('dashboard');toast('登录成功');}
+    else toast(d.message||d.detail||'登录失败','error');
+  }catch(e){toast('登录失败','error');}
+}
+
+// ── Dashboard ──
+async function renderDashboard(){
+  const ct=document.getElementById('mainContent');
+  ct.innerHTML='<div class="loading">加载中...</div>';
+  let health={},containers=[];
+  try{const d=await fetchJSON(ADMIN+'/health');health=d.data||{};}catch(e){}
+  try{const d=await fetchJSON(ADMIN+'/containers');containers=(d.data||{}).containers||[];}catch(e){}
+
+  const running=containers.filter(c=>c.is_running).length;
+  const total=containers.length;
+  const dbOk=health.components?.database?.status==='ok';
+  const redisOk=health.components?.redis?.status==='ok';
+
+  ct.innerHTML=`
+    <div class="header">
+      <h1>📊 仪表盘</h1>
+      <span class="status-badge ${dbOk?'status-ok':'status-err'}">${dbOk?'系统正常':'系统异常'}</span>
+    </div>
+    <div class="grid4" style="margin-bottom:20px">
+      <div class="stat-card"><div class="label">容器运行</div><div class="value" style="color:var(--green)">${running}/${total}</div></div>
+      <div class="stat-card"><div class="label">数据库</div><div class="value" style="color:${dbOk?'var(--green)':'var(--red)'}">${dbOk?'在线':'离线'}</div></div>
+      <div class="stat-card"><div class="label">Redis</div><div class="value" style="color:${redisOk?'var(--green)':'var(--red)'}">${redisOk?'在线':'离线'}</div></div>
+      <div class="stat-card"><div class="label">DeepSeek</div><div class="value" style="color:${health.components?.deepseek?.status==='ok'?'var(--green)':'var(--amber)'}">${health.components?.deepseek?.status==='ok'?'正常':'待查'}</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><h3>🐳 容器列表</h3><button class="btn btn-sm btn-outline" onclick="renderPage('containers')">管理 →</button></div>
+      <div class="panel-body" style="padding:0;max-height:300px">
+        <table>${containers.map(c=>`<tr><td><span class="status-dot ${c.is_running?'dot-green':'dot-red'}"></span>${c.name}</td><td>${c.image}</td><td style="color:${c.is_running?'var(--green)':'var(--red)'}">${c.status.split(' ')[0]}</td></tr>`).join('')||'<tr><td colspan=3 class="empty">无容器数据</td></tr>'}</table>
+      </div>
+    </div>
+  `;
+}
+
+// ── Database ──
+async function renderDatabase(){
+  const ct=document.getElementById('mainContent');
+  ct.innerHTML='<div class="loading">加载中...</div>';
+  let tables=[];
+  try{const d=await fetchJSON(ADMIN+'/db/tables');tables=(d.data||{}).tables||[];}catch(e){}
+  ct.innerHTML=`
+    <div class="header"><h1>🗄️ 数据库管理</h1></div>
+    <div class="panel">
+      <div class="panel-header"><h3>数据表列表</h3><span style="color:var(--muted);font-size:12px">共 ${tables.length} 张表</span></div>
+      <div class="panel-body" style="padding:0;max-height:500px">
+        <table>${tables.map(t=>`<tr class="clickable" onclick="showTableData('${t.name}')"><td>📋 ${t.name}</td><td>${t.row_count} 行</td><td style="color:var(--blue)">点击查看 →</td></tr>`).join('')||'<tr><td class="empty">无数据表</td></tr>'}</table>
+      </div>
+    </div>
+    <div id="tableDetail"></div>`;
+}
+
+async function showTableData(tableName){
+  const detail=document.getElementById('tableDetail');
+  detail.innerHTML='<div class="loading">加载表数据...</div>';
+  try{
+    const d=await fetchJSON(ADMIN+'/db/tables/'+tableName+'?limit=50');
+    const data=d.data||{};
+    const cols=data.columns||[],rows=data.rows||[];
+    detail.innerHTML=`
+      <div class="panel">
+        <div class="panel-header">
+          <h3>📋 ${tableName} <span style="color:var(--muted);font-weight:400;font-size:12px">${data.total} 行 · 显示前 ${Math.min(rows.length,50)} 行</span></h3>
+          <button class="btn btn-sm btn-outline" onclick="showTableSchema('${tableName}')">查看结构</button>
+        </div>
+        <div class="panel-body" style="padding:0;max-height:450px;overflow:auto">
+          <table><thead><tr>${cols.map(c=>`<th>${c.name}<br><span style="font-weight:400;font-size:10px;color:var(--muted)">${c.type}</span></th>`).join('')}</tr></thead>
+          <tbody>${rows.map(r=>`<tr>${cols.map(c=>`<td title="${r[c.name]||''}">${String(r[c.name]||'-').substring(0,100)}</td>`).join('')}</tr>`).join('')}</tbody></table>
+          ${rows.length===0?'<div class="empty">暂无数据</div>':''}
+        </div>
+      </div>`;
+  }catch(e){detail.innerHTML='<div class="panel"><div class="panel-body"><div class="empty">加载失败</div></div></div>';}
+}
+
+async function showTableSchema(tableName){
+  try{
+    const d=await fetchJSON(ADMIN+'/db/tables/'+tableName+'/schema');
+    const data=d.data||{};
+    const cols=data.columns||[],idxs=data.indexes||[],pks=data.primary_keys||[];
+    const detail=document.getElementById('tableDetail');
+    detail.insertAdjacentHTML('afterend',`
+      <div class="modal-overlay" onclick="this.remove()"><div class="modal" onclick="event.stopPropagation()">
+        <h3>📐 ${tableName} — 表结构</h3>
+        <h4 style="font-size:13px;margin:12px 0 6px">列</h4>
+        <table style="margin-bottom:12px">${cols.map(c=>`<tr><td>${c.name}</td><td>${c.type}${c.max_length?'('+c.max_length+')':''}</td><td>${c.nullable?'NULL':'NOT NULL'}</td><td style="color:var(--muted)">${c.default||'-'}</td></tr>`).join('')}</table>
+        <h4 style="font-size:13px;margin:12px 0 6px">主键: ${pks.join(', ')||'无'}</h4>
+        <h4 style="font-size:13px;margin:12px 0 6px">索引 (${idxs.length})</h4>
+        ${idxs.map(i=>`<div style="font-size:11px;color:var(--muted);padding:2px 0">${i.name}</div>`).join('')}
+      </div></div>`);
+  }catch(e){}
+}
+
+// ── Containers ──
+async function renderContainers(){
+  const ct=document.getElementById('mainContent');
+  ct.innerHTML='<div class="loading">加载中...</div>';
+  let containers=[];
+  try{const d=await fetchJSON(ADMIN+'/containers');containers=(d.data||{}).containers||[];}catch(e){}
+  ct.innerHTML=`
+    <div class="header"><h1>🐳 服务管理</h1></div>
+    <div class="panel">
+      <div class="panel-header"><h3>Docker 容器</h3></div>
+      <div class="panel-body" style="padding:0">
+        <table>${containers.map(c=>`
+          <tr>
+            <td><span class="status-dot ${c.is_running?'dot-green':'dot-red'}"></span>${c.name}</td>
+            <td>${c.image}</td>
+            <td style="color:${c.is_running?'var(--green)':'var(--red)'}">${c.status}</td>
+            <td style="color:var(--muted)">${c.running_for||''}</td>
+            <td>
+              ${c.is_running
+                ?`<button class="btn btn-sm btn-warn" onclick="manageContainer('${c.name}','restart')">重启</button>
+                  <button class="btn btn-sm btn-danger" onclick="manageContainer('${c.name}','stop')">停止</button>`
+                :`<button class="btn btn-sm btn-success" onclick="manageContainer('${c.name}','start')">启动</button>`}
+            </td>
+          </tr>`).join('')||'<tr><td colspan=5 class="empty">无容器</td></tr>'}</table>
+      </div>
+    </div>`;
+}
+async function manageContainer(name,action){
+  if(!confirm(`确认 ${action} 容器 ${name}？`))return;
+  try{
+    const d=await fetchJSON(ADMIN+'/containers/'+name+'/'+action,{method:'POST'});
+    if(d.code===200){toast(`${name} ${action} 成功`);setTimeout(()=>renderContainers(),1500);}
+    else toast(d.message,'error');
+  }catch(e){toast('操作失败','error');}
+}
+
+// ── Health ──
+async function renderHealth(){
+  const ct=document.getElementById('mainContent');
+  ct.innerHTML='<div class="loading">加载中...</div>';
+  let health={};
+  try{const d=await fetchJSON(ADMIN+'/health');health=d.data||{};}catch(e){}
+
+  const comps=health.components||{};
+  ct.innerHTML=`
+    <div class="header"><h1>❤️ 系统健康</h1><span class="status-badge ${health.overall==='ok'?'status-ok':'status-err'}">${health.overall==='ok'?'全部正常':'异常'}</span></div>
+    <div class="grid2">
+      ${['database','redis','deepseek','disk'].map(k=>`
+        <div class="stat-card">
+          <div class="label">${k}</div>
+          <div style="font-size:16px;font-weight:600;color:${(comps[k]||{}).status==='ok'?'var(--green)':'var(--red)'}">
+            ${(comps[k]||{}).status==='ok'?'✅ 正常':'❌ 异常'}
+          </div>
+          ${k==='disk'&&comps[k]?`<div style="font-size:12px;color:var(--muted);margin-top:6px">总: ${comps[k].total} / 已用: ${comps[k].used} / 可用: ${comps[k].available}</div>`:''}
+          ${(comps[k]||{}).message?`<div style="font-size:11px;color:var(--red);margin-top:4px">${comps[k].message}</div>`:''}
+        </div>`).join('')}
+    </div>
+    <div class="panel" style="margin-top:16px">
+      <div class="panel-header"><h3>💾 内存使用</h3></div>
+      <div class="log-box">${comps.memory?.raw||'无数据'}</div>
+    </div>`;
+}
+
+// ── Test Module ──
+let testResults=[];
+function renderTest(){
+  document.getElementById('mainContent').innerHTML=`
+    <div class="header"><h1>🧪 测试模块</h1></div>
+    <div class="grid2" style="margin-bottom:16px">
+      <button class="btn btn-primary" style="padding:16px" onclick="runTestSuite()">▶️ 运行完整测试套件</button>
+      <button class="btn btn-outline" style="padding:16px" onclick="runQuickTest()">⚡ 快速连接测试</button>
+    </div>
+    <div id="testOutput" class="panel" style="display:none">
+      <div class="panel-header"><h3>测试结果</h3><span id="testSummary" style="font-size:12px"></span></div>
+      <div class="panel-body" id="testBody" style="max-height:500px"></div>
+    </div>`;
+}
+
+async function runQuickTest(){
+  const tests=[
+    {name:'API 健康检查',fn:async()=>{const r=await fetch(API.replace('/api/v1','')+'/health');return r.ok?{pass:true,msg:'OK'}:{pass:false,msg:'HTTP '+r.status}}},
+    {name:'数据库连接',fn:async()=>{const d=await fetchJSON(API+'/health');return d.status==='ok'?{pass:true,msg:'OK'}:{pass:false,msg:'Failed'}}},
+  ];
+  await executeTests(tests);
+}
+
+async function runTestSuite(){
+  const tests=[
+    {name:'API 健康检查',fn:async()=>{const r=await fetch(API.replace('/api/v1','')+'/health');return r.ok?{pass:true,msg:await r.text()}:{pass:false,msg:'HTTP '+r.status}}},
+    {name:'数据库连接',fn:async()=>{const d=await fetchJSON(ADMIN+'/db/tables');return d.code===200?{pass:true,msg:`${d.data.tables.length} tables`}:{pass:false,msg:d.message}}},
+    {name:'Redis连接',fn:async()=>{const d=await fetchJSON(ADMIN+'/health');return d.data?.components?.redis?.status==='ok'?{pass:true,msg:'OK'}:{pass:false,msg:'Failed'}}},
+    {name:'容器状态',fn:async()=>{const d=await fetchJSON(ADMIN+'/containers');const running=d.data.containers.filter(c=>c.is_running).length;return{pass:running>0,msg:`${running}/${d.data.containers.length} running`}}},
+    {name:'数据表可读',fn:async()=>{const d=await fetchJSON(ADMIN+'/db/tables');if(!d.data?.tables?.length)return{pass:false,msg:'No tables'};const tbl=d.data.tables[0].name;const dd=await fetchJSON(ADMIN+'/db/tables/'+tbl+'?limit=1');return dd.code===200?{pass:true,msg:`Read ${tbl} OK`}:{pass:false,msg:dd.message}}},
+    {name:'认证流程',fn:async()=>{try{const r=await fetch(API+'/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:'test@test.com',password:'wrong'})});const d=await r.json();return{pass:d.code!==200,msg:r.status===401?'401 as expected':'Unexpected'}}catch(e){return{pass:false,msg:e.message}}}},
+  ];
+  await executeTests(tests);
+}
+
+async function executeTests(tests){
+  testResults=[];document.getElementById('testOutput').style.display='block';
+  const body=document.getElementById('testBody');
+  body.innerHTML='<div class="loading">运行测试中...</div>';
+  let passed=0,failed=0;
+  for(let i=0;i<tests.length;i++){
+    const t=tests[i];let result;
+    try{result=await t.fn();}catch(e){result={pass:false,msg:e.message};}
+    if(result.pass)passed++;else failed++;
+    testResults.push({...t,...result});
+    body.innerHTML=testResults.map((r,j)=>
+      `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
+        <span>${j+1}. ${r.name}</span>
+        <span style="display:flex;align-items:center;gap:8px">
+          <span style="color:${r.pass?'var(--green)':'var(--red)'};font-weight:600">${r.pass?'✓ PASS':'✗ FAIL'}</span>
+          <span style="color:var(--muted);font-size:11px">${r.msg||''}</span>
+        </span>
+      </div>`).join('')+
+      `<div style="padding:12px 0;font-weight:600;font-size:14px;text-align:center;color:${failed===0?'var(--green)':'var(--red)'}">
+        ${passed}/${tests.length} 通过 · ${failed===0?'🎉 全部通过！':'⚠️ 存在失败项'}
+      </div>`;
+    document.getElementById('testSummary').textContent=`${passed} 通过 / ${failed} 失败`;
+  }
+}
+
+// ── Init ──
+if(token)renderPage('dashboard');else renderLogin();
+</script>
+</body>
+</html>

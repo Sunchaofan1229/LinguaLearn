@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>VRM 数字人预览</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0e0e1a; color: #e0e0e0; font-family: system-ui, sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+  .preview { max-width: 480px; width: 100%; padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .title { font-size: 18px; font-weight: 600; color: #ccc; }
+  .subtitle { font-size: 13px; color: #777; }
+  .stage { width: 400px; height: 480px; border-radius: 24px; background: linear-gradient(135deg, #14142a, #0a0a14); box-shadow: 0 8px 40px rgba(0,0,0,0.5); overflow: hidden; position: relative; }
+  .stage canvas { width: 100% !important; height: 100% !important; display: block; }
+  .loading-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px; background: rgba(14,14,26,0.9); z-index: 10; transition: opacity 0.5s; }
+  .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+  .spinner { width: 32px; height: 32px; border: 3px solid #333; border-top-color: #8a6adf; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .controls { display: flex; gap: 12px; margin-top: 8px; }
+  .controls button { padding: 14px 28px; border-radius: 24px; border: none; font-size: 15px; cursor: pointer; transition: all .25s; font-weight: 600; min-width: 100px; }
+  .btn-talk { background: linear-gradient(135deg, #4caf50, #388e3c); color: #fff; }
+  .btn-talk.on { background: linear-gradient(135deg, #66bb6a, #43a047); box-shadow: 0 0 20px rgba(76,175,80,0.4); }
+  .btn-listen { background: linear-gradient(135deg, #42a5f5, #1e88e5); color: #fff; }
+  .btn-listen.on { background: linear-gradient(135deg, #64b5f6, #42a5f5); box-shadow: 0 0 20px rgba(66,165,245,0.4); }
+  .btn-reset { background: #555; color: #ddd; }
+  .btn-reset:hover { background: #666; }
+  .status { font-size: 13px; color: #888; }
+</style>
+</head>
+<body>
+<div class="preview">
+  <div class="title">✨ VRM 3D 动漫数字人</div>
+  <div class="subtitle">Three.js + @pixiv/three-vrm · Alicia Solid 模型</div>
+  <div class="stage" id="stage">
+    <div class="loading-overlay" id="loadingOverlay">
+      <div class="spinner"></div>
+      <span>正在加载 VRM 模型...</span>
+    </div>
+    <canvas id="canvas"></canvas>
+  </div>
+  <div class="controls">
+    <button class="btn-talk" id="btnTalk">🗣️ 说话</button>
+    <button class="btn-listen" id="btnListen">👂 倾听</button>
+    <button class="btn-reset" id="btnReset">🔄 待机</button>
+  </div>
+  <div class="status" id="status">待机中...</div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.168.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import {
+  VRMLoaderPlugin,
+  VRMExpressionPresetName,
+  VRMHumanBoneName,
+  VRMUtils,
+} from 'https://cdn.jsdelivr.net/npm/@pixiv/three-vrm@3.5.3/lib/three-vrm.es.js';
+
+// ── 设置 ──
+const canvas = document.getElementById('canvas');
+const stage = document.getElementById('stage');
+const loadingOverlay = document.getElementById('loadingOverlay');
+const statusEl = document.getElementById('status');
+
+const W = 400, H = 480;
+canvas.width = W * 2;
+canvas.height = H * 2;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x1a1a2e);
+
+const camera = new THREE.PerspectiveCamera(25, W / H, 0.1, 20);
+camera.position.set(0, 1.35, -1.2);
+camera.lookAt(0, 1.35, 0);
+
+const renderer = new THREE.WebGLRenderer({
+  canvas,
+  alpha: true,
+  antialias: true,
+});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(W, H);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+
+// ── 灯光 ──
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+scene.add(ambientLight);
+
+const mainLight = new THREE.DirectionalLight(0xffffff, 1.8);
+mainLight.position.set(2, 3, 3);
+scene.add(mainLight);
+
+const fillLight = new THREE.DirectionalLight(0xffeedd, 0.6);
+fillLight.position.set(-2, 1, -1);
+scene.add(fillLight);
+
+const rimLight = new THREE.DirectionalLight(0xaaccff, 0.4);
+rimLight.position.set(0, 2, -3);
+scene.add(rimLight);
+
+const hemiLight = new THREE.HemisphereLight(0x8eaaff, 0x443322, 0.4);
+scene.add(hemiLight);
+
+// ── 加载 VRM ──
+let vrm = null;
+let headNode = null;
+const clock = new THREE.Clock();
+
+async function loadVRM() {
+  try {
+    statusEl.textContent = '正在加载模型...';
+    const loader = new GLTFLoader();
+    loader.register((parser) => new VRMLoaderPlugin(parser));
+    const gltf = await loader.loadAsync('/models/AliciaSolid.vrm');
+    vrm = gltf.userData.vrm;
+
+    VRMUtils.rotateVRM0(vrm);
+
+    vrm.scene.position.set(0, 0, 0);
+    scene.add(vrm.scene);
+
+    headNode = vrm.humanoid?.getBoneNode(VRMHumanBoneName.Head) ?? null;
+
+    loadingOverlay.classList.add('hidden');
+    statusEl.textContent = '待机中...';
+  } catch (err) {
+    statusEl.textContent = '模型加载失败: ' + (err.message || '未知错误');
+    console.error('VRM load error:', err);
+  }
+}
+
+// ── 动画状态 ──
+let talking = false;
+let listening = false;
+let blinkTimer = 3 + Math.random() * 2;
+let blinkValue = 0;
+let blinkPhase = 'open';
+
+function animate() {
+  requestAnimationFrame(animate);
+  const delta = clock.getDelta();
+  const elapsed = performance.now() / 1000;
+
+  if (!vrm) { renderer.render(scene, camera); return; }
+
+  // 眨眼
+  if (blinkPhase === 'open') {
+    blinkTimer -= delta;
+    if (blinkTimer <= 0) blinkPhase = 'closing';
+  } else if (blinkPhase === 'closing') {
+    blinkValue = Math.min(1, blinkValue + delta * 12);
+    if (blinkValue >= 1) blinkPhase = 'opening';
+  } else {
+    blinkValue = Math.max(0, blinkValue - delta * 8);
+    if (blinkValue <= 0) {
+      blinkPhase = 'open';
+      blinkTimer = 3 + Math.random() * 2.5;
+    }
+  }
+  vrm.expressionManager?.setValue(VRMExpressionPresetName.Blink, blinkValue);
+
+  // 呼吸
+  const breathe = Math.sin(elapsed * 1.2) * 0.003;
+  vrm.scene.position.y = breathe;
+
+  // 头部微摇
+  if (headNode) {
+    const or = headNode.userData.origRot;
+    if (!or) {
+      headNode.userData.origRot = { x: headNode.rotation.x, y: headNode.rotation.y, z: headNode.rotation.z };
+    }
+    const orig = headNode.userData.origRot;
+    headNode.rotation.x = orig.x + Math.sin(elapsed * 0.5) * 0.015;
+    headNode.rotation.y = orig.y + Math.sin(elapsed * 0.35 + 0.5) * 0.025;
+    headNode.rotation.z = orig.z + Math.sin(elapsed * 0.7) * 0.01;
+  }
+
+  // 说话
+  if (talking) {
+    const mouthVal = 0.3 + Math.abs(Math.sin(elapsed * 12 + Math.sin(elapsed * 2.5) * 0.5)) * 0.7;
+    vrm.expressionManager?.setValue(VRMExpressionPresetName.Aa, mouthVal);
+    const altCycle = elapsed % 0.6;
+    vrm.expressionManager?.setValue(VRMExpressionPresetName.Ih, altCycle < 0.15 ? 0.3 : 0);
+    vrm.expressionManager?.setValue(VRMExpressionPresetName.Ou, (altCycle >= 0.15 && altCycle < 0.3) ? 0.2 : 0);
+    vrm.expressionManager?.setValue(VRMExpressionPresetName.Happy, 0.15);
+  } else if (listening) {
+    vrm.expressionManager?.setValue(VRMExpressionPresetName.Aa, 0.08);
+    vrm.expressionManager?.setValue(VRMExpressionPresetName.Happy, 0.35);
+    vrm.expressionManager?.setValue(VRMExpressionPresetName.Surprised, 0.15);
+    if (headNode) {
+      const orig = headNode.userData.origRot;
+      headNode.rotation.x = (orig?.x || 0) + 0.03;
+    }
+  } else {
+    vrm.expressionManager?.setValue(VRMExpressionPresetName.Aa, 0);
+    vrm.expressionManager?.setValue(VRMExpressionPresetName.Ih, 0);
+    vrm.expressionManager?.setValue(VRMExpressionPresetName.Ou, 0);
+    vrm.expressionManager?.setValue(VRMExpressionPresetName.Ee, 0);
+    vrm.expressionManager?.setValue(VRMExpressionPresetName.Happy, 0);
+    vrm.expressionManager?.setValue(VRMExpressionPresetName.Surprised, 0);
+  }
+
+  vrm.update(delta);
+  renderer.render(scene, camera);
+}
+
+// ── 控件 ──
+document.getElementById('btnTalk').onclick = function() {
+  talking = !talking; listening = false;
+  this.classList.toggle('on', talking);
+  document.getElementById('btnListen').classList.remove('on');
+  statusEl.textContent = talking ? '🗣️ 说话中...' : '待机中...';
+};
+document.getElementById('btnListen').onclick = function() {
+  listening = !listening; talking = false;
+  this.classList.toggle('on', listening);
+  document.getElementById('btnTalk').classList.remove('on');
+  statusEl.textContent = listening ? '👂 倾听中...' : '待机中...';
+};
+document.getElementById('btnReset').onclick = function() {
+  talking = false; listening = false;
+  document.getElementById('btnTalk').classList.remove('on');
+  document.getElementById('btnListen').classList.remove('on');
+  statusEl.textContent = '待机中...';
+};
+
+// ── 启动 ──
+loadVRM();
+animate();
+</script>
+</body>
+</html>
